@@ -1,0 +1,10 @@
+[package]
+name = "sideduck-composite"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+wgpu.workspace = true
+pollster.workspace = true
+

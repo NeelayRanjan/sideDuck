@@ -1,0 +1,8 @@
+/target/
+/.tools/
+/dist/
+*.pond/
+*.quill/
+.DS_Store
+/scratch/
+
