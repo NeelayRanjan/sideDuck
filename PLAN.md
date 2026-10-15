@@ -1,6 +1,6 @@
 # Build plan
 
-Current task: M1 tile store and the explicitly requested early Sidecar prototype.
+Current task: final ten-minute M1 residency validation, coverage check and clean-checkout verification.
 
 ## M0 Scaffold
 - [x] Rust workspace and pinned dependencies; all specified crate boundaries.
@@ -8,17 +8,17 @@ Current task: M1 tile store and the explicitly requested early Sidecar prototype
 - [x] Record assumptions and commit passing scaffold.
 
 ## M1 Tile store and performance gate
-- [ ] Tile geometry, RGBA8/RGBA16F, sparse index, append-only mmap store, compression.
-- [ ] Budgeted cache, eviction, pinning, prefetch, dirty tracking and persistence tests.
-- [ ] Streaming 8K/500-layer synthetic document and fresh-process open-time check.
+- [x] Tile geometry, RGBA8/RGBA16F, sparse index, append-only mmap store, compression.
+- [x] Budgeted cache, eviction, pinning, prefetch, dirty tracking and persistence tests.
+- [x] Streaming 8K/500-layer synthetic document and fresh-process open-time check.
 - [ ] Assert process memory and cache budgets during ten-minute adversarial access.
 - [ ] Document measured results, limitations, and commit passing increment.
 
 ## Early macOS/Sidecar prototype (requested slice of M5/M6)
-- [ ] Native tablet point/proximity input with pressure/tilt and portable replay mock.
-- [ ] Deterministic pressure-driven drawing and input-routing tests.
-- [ ] Separate canvas/control windows, explicit mouse fallback, telemetry, clear/export.
-- [ ] Native build, desktop smoke check, and physical Sidecar acceptance instructions.
+- [x] Native tablet point/proximity input with pressure/tilt and portable replay mock.
+- [x] Deterministic pressure-driven drawing and input-routing tests.
+- [x] Separate canvas/control windows, explicit mouse fallback, telemetry, clear/export.
+- [x] Native build, desktop smoke check, and physical Sidecar acceptance instructions.
 
 ## M2 Compositor
 - [ ] Blend modes and scalar CPU reference.

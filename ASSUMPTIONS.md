@@ -13,3 +13,12 @@
 - Physical Apple Pencil/Sidecar behavior cannot be certified by mocks or a desktop launch; the runbook carries an explicit device acceptance checklist.
 - M0 checks cover the scaffold; M1 adds its budget gate to make check. Unimplemented compositor/brush latency targets and coverage floors remain pending and will not be reported as passed.
 
+
+- Prototype painting uses a fixed-size white CPU raster while the tile gate exercises a separate store; connecting the two requires the compositor/document milestones and is not implied by the current UI.
+- Pressure/tilt come from AppKit tablet events; azimuth is derived from the tilt vector, not a separate native Pencil angle.
+- Native event coordinates are converted from content-view points into egui coordinates, including UI zoom; contacts end when geometry or input windows change.
+- Tile prefetch is initially synchronous, with explicitly bounded requested keys; asynchronous prefetch and compaction remain pending.
+- The storage fixture is deliberately compressible but contains independently generated distinct tiles; results identify this and do not stand for high-entropy photos.
+- Open-time measurement is a new process with the filesystem cache uncontrolled; it is not called a cold-disk result.
+- make soak currently exercises the ten-minute M1 residency workload; the 500-kill M9 crash soak is not implemented.
+- No project license has been chosen on the owner's behalf; package license fields remain absent until the owner selects one.

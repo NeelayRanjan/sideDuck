@@ -3,3 +3,8 @@ name = "sideduck-app"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+eframe.workspace = true
+sideduck-ui = { path = "../sideduck-ui" }
+sideduck-composite = { path = "../sideduck-composite" }

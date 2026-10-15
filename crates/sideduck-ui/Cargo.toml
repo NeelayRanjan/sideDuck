@@ -3,3 +3,12 @@ name = "sideduck-ui"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+eframe.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+png.workspace = true
+sideduck-platform = { path = "../sideduck-platform" }
+sideduck-input = { path = "../sideduck-input" }
+sideduck-brush = { path = "../sideduck-brush" }

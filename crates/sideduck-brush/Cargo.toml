@@ -3,3 +3,7 @@ name = "sideduck-brush"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+sideduck-input = { path = "../sideduck-input" }
