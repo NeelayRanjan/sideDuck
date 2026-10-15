@@ -1,171 +1,145 @@
-# sideDuck prototype runbook
+# sideDuck development runbook
 
-This increment delivers the M0 workspace, an M1 storage budget gate, and an early
-macOS/Sidecar drawing prototype. It is not the full application in SPEC.md.
-The fixed-size scratch canvas uses a scalar CPU rasterizer and a GPU display
-texture; it is not yet wired to the sparse multi-layer document store. Quit
-without exporting and that drawing is discarded. There is no undo yet.
+This is a working development increment, not the completed release in SPEC.md.
+The default editor paints into sparse `.pond` document packages, records strokes
+and layer operations, and supports disk-backed undo/redo. The user requested an
+early push to conserve credits; unfinished requirements remain in PLAN.md.
 
 ## Build and run
 
-Install Rust 1.90.0 (rust-toolchain.toml), Clippy, rustfmt, LLVM tools, Python 3, and the platform's native
-compiler. On macOS install Apple's Command Line Tools with `xcode-select --install`
-if necessary. The `scripts/cargo.sh` wrapper uses a workspace-local toolchain in
-`.tools/` when available, otherwise the normal `cargo` on PATH. Build-time network
-access is needed to download crates; the application has no runtime network.
+Install Rust 1.90.0, Clippy, rustfmt, LLVM tools, Python 3 and the native compiler.
+On macOS, install Apple's Command Line Tools with `xcode-select --install` if
+needed. `scripts/cargo.sh` uses `.tools/` when present, otherwise Cargo on PATH.
+Dependencies download at build time; there is no runtime network or telemetry.
 
 ```sh
 make setup
-make check
-make run
+./scripts/cargo.sh test --workspace --locked
+./scripts/cargo.sh run --release --locked -p sideduck-app -- --document target/my-drawing.pond
+make dist
 ```
 
-`make check` runs formatting, Clippy with denied warnings, tests, release builds,
-the per-crate coverage floors, and the short storage gate. `make setup` installs
-the pinned cargo-llvm-cov 0.6.21 runner; `make coverage` runs its checks separately.
-A real headless GPU is required by the GPU probe;
-GPU-denying sandboxes will correctly fail it. The prototype uses wgpu/Metal on
-macOS. The Linux mock path is present but this increment is validated on macOS,
-not certified on Linux. Coverage for the unimplemented document/compositor modules and full compositor/brush performance gates
-remain open in PLAN.md.
+`make dist` builds `dist/sideDuck.app` with the original SVG icon rendered to
+macOS icon sizes. Open it from Finder. This local build is unsigned and is not
+notarized. If macOS blocks it, use System Settings → Privacy & Security → Open
+Anyway after inspecting the build. A paid developer account is not required for
+local development; signing/notarization for distribution are outside scope.
 
-`make dist` creates `dist/sideDuck.app`. Open it from Finder, or run
-`open dist/sideDuck.app`. This is a local developer build, without Developer ID
-signing or notarization. If macOS blocks this local build, inspect it and use
-Privacy & Security → Open Anyway as appropriate; no developer account is needed
-for building locally. Do not assume this is a distributable release.
+`--demo` paints a deterministic example into the chosen document. `--smoke-test`
+opens native windows and exits after four seconds. Use a disposable document for
+these checks. `--gpu-probe` reports the GPU adapter. `--prototype` opens the older
+Drawing Lab, whose scratch canvas is only saved by PNG export; its `--config`
+and `--exports` arguments apply to that lab.
 
-Useful commands:
+## Editing and persistence
+
+Use **Document** to create/open packages, import an image or PDF reference, and
+export PNG/TIFF/JPEG/PDF. Paths are typed into the panel. Completed strokes and
+structural edits commit automatically; **Save** writes a checkpoint. Undo/redo
+restore recorded state and pixels. Input samples, full brush settings and seeds
+are stored for deterministic replay. Prediction samples are never committed.
+
+The canvas supports scroll zoom and middle-drag/Space-drag pan. The layer panel
+provides visibility, locking, opacity, blend modes, ordering and groups. Selection
+tools include rectangle, ellipse, lasso and wand; feather, invert, grow/shrink,
+copy/cut/paste and transforms are connected. Merge currently supports normal,
+unmasked, unclipped raster siblings only and rejects unsupported combinations.
+
+Twelve editable `.quill` brush packages ship with the app. **Edit brush** exposes
+shape/grain, dynamics and response curves. **Settings** includes stabilization,
+global and per-brush pressure curves, and calibration from recent strokes.
+Settings and brush edits persist separately from document stroke records.
+See TUNING.md for parameters, formats and the calibration procedure.
+
+Reference layers retain original sources. For one eligible base PDF reference, PDF export preserves original page
+content and adds annotations in an optional layer. Mixed or transformed reference
+stacks export a flattened PDF so other references are not omitted. PNG/TIFF retain transparency;
+JPEG composites onto white in linear light. Existing export paths are rejected; choose a new file name. Export also refuses
+to write inside a document package. New files publish atomically without overwriting. Keep the `.pond` package for editable history.
+
+## Sidecar and annotation
+
+1. Connect the iPad through the Mac's Screen Mirroring menu as an extended display.
+   Arrange screens in System Settings → Displays.
+2. Keep the control window on the Mac. Open **Canvas window** and move it to the
+   iPad, using the display selector when available. Enable **Full screen** if useful.
+3. Leave **Paint with mouse** off for stylus-only painting. Test light/firm pressure,
+   tilt, canvas edges, pen lifts, window changes and display scale changes.
+4. Record hardware/OS versions and any offset or missing input. Physical Apple
+   Pencil/Sidecar acceptance has NOT been demonstrated by automated smoke tests.
+
+Native APIs provide live display overlays, pinned window overlays, display/window
+listing and capture. Settings has explicit overlay Draw/Click-through modes:
+macOS window-wide mouse ignoring cannot simultaneously pass a physical mouse
+through while intercepting Pencil. Pinned overlays follow a selected window.
+Drawing overlays do not capture the desktop or request Screen Recording access.
+
+**Capture to document** explains Screen Recording permission and requires an
+explicit capture confirmation before requesting it. If denied, grant access in
+System Settings → Privacy & Security → Screen Recording and retry. Captures become
+a locked base layer with a paint layer above. Actual permission dialogs and user
+desktop capture were not exercised during automated validation.
+
+## Checks and known limits
 
 ```sh
-./scripts/cargo.sh run --release --locked -p sideduck-app -- --gpu-probe
-./scripts/cargo.sh run --release --locked -p sideduck-app -- --demo
-./scripts/cargo.sh run --release --locked -p sideduck-app -- --smoke-test
-./scripts/cargo.sh run --release --locked -p sideduck-app -- --config config/prototype.json
+make check       # fmt, Clippy, tests, per-crate coverage, release, all budget gates
+make bench       # brush, storage, native presentation and fit-view gates
+make soak        # ten-minute storage access gate; NOT yet a 500-kill document soak
+make coverage
 ```
 
-`--demo` paints deterministic example curves; they are not evidence of real tablet
-input. `--smoke-test` opens both native windows and exits after four seconds.
-Default PNG exports go to `~/Pictures/sideDuck Exports`; override with `--exports
-DIRECTORY`. Export creates a new file and never overwrites an existing one.
+GPU tests require an accessible Metal/Vulkan adapter. Linux mock CI is configured
+in `.github/workflows/ci.yml` but has not yet been run for this increment.
+`make check` is NOT currently claimed passing: full 500-layer compositor timing
+gates remain unmet. Assertions are retained rather than relaxed.
 
-## Sidecar acceptance on real hardware (pending)
+Other open limits: the editor uses a bounded CPU preview (currently capped at
+1024 pixels per side), the production GPU renderer is not connected to editor
+painting, full-scale paint/export integration is unproven, exact presentation
+latency is unavailable, and free-distort UI needs completion. Reference rendering
+is cached within 128 MiB; very large full-resolution reference exports can hit
+memory bounds. Display P3 math is tested, but native P3 output is not certified.
 
-1. Connect the iPad using the Mac's Screen Mirroring menu and use it as an extended
-   display. Arrange the displays in System Settings → Displays.
-2. Launch the prototype. Keep **Drawing Lab** on the Mac. Move **sideDuck Canvas**
-   to the iPad, then optionally enable **Canvas full screen**. Escape exits full
-   screen. Window placement is manual; automatic Sidecar identification is pending.
-3. Leave **Allow mouse drawing** off. Draw using Apple Pencil. The input panel must
-   change from waiting to **Tablet events received**, and the sample count must
-   rise. A mouse or trackpad must not paint in this mode.
-4. Draw light and firm strokes. Native pressure must vary and the radius must
-   follow it. Tilt X/Y and derived azimuth should vary when the stylus tilts.
-   Eraser/barrel fields depend on device capabilities and are not promised for
-   Apple Pencil. The explicit Eraser control is always available.
-5. Lift, start a new stroke, move across the canvas edge, switch windows and return:
-   separate strokes must not become joined. Try different display scale settings
-   and full-screen transitions; the mark must remain under the Pencil.
-6. Export PNG and inspect it. Close/reopen the canvas using **Open canvas**; the
-   scratch drawing should remain while the control window stays open.
-7. Record Mac/iPad models, macOS/iPadOS versions, wired/wireless connection, pressure
-   range, tilt behavior, lost samples and visible offset. This checklist has NOT
-   been passed by the automated tests or desktop smoke test.
+Default document tile cache is 64 MiB; editor paint, preview, selection and export
+have explicit internal bounds. The storage harness accepts `--cache-mib` and
+`--ceiling-mib` (default process ceiling 4096 MiB). A unified runtime memory-setting
+panel remains pending. Bounds reject operations instead of silently dropping data.
 
-The prototype monitors application-local AppKit tablet events, including mouse
-messages with tablet subtypes. It does not use system-wide event taps, screen
-capture, or require Input Monitoring/Screen Recording permissions. Live overlays,
-pinned overlays and screenshot capture are not implemented. When capture lands,
-its screen-recording permission flow must be tested separately.
+Async prefetch is bounded to 32 keys/8 workers with cancellation and stale-version
+checks, but app scheduling remains pending. Compact-copy verifies live blobs into
+a new standalone store. It does not replace a `.pond` store: checkpoint offsets
+and journal hashes must remain valid. In-place document compaction is unfinished.
 
-The pressure curve slider changes an exponent; automatic pressure calibration,
-stabilization and prediction are later milestones. Raw telemetry shows the
-uncurved input. No end-to-display latency claim is made.
+## Measurements and evidence
 
-## Storage budget gate
+Host: macOS 15.3.1, arm64 Apple M4 Pro/Metal. Hardware results are specific to this
+host. The 8K/500-layer storage corpus has 204,800 occupied tiles, 60% empty slots,
+and 50 GiB logical RGBA8 data. Seeded painting-like marks are deliberately highly
+compressible; this is not random-noise or photographic worst-case data. Disk cache
+is warm/uncontrolled, even for fresh-process open measurements.
 
-```sh
-make bench  # full corpus, fresh-process open and short adversarial session
-make soak   # full corpus, ten-minute adversarial session
-```
+- Previously completed M1 ten-minute run: 600.000398 s, 5,379,191 reads, 188,490
+  edits, 1,319,424 viewport jumps and 5,226,692 evictions. All 64 edited probe tiles
+  survived commit/reopen. Index open 18.31 ms; peak process residency 85.84 MiB
+  under 4 GiB, with a 64 MiB decoded cache. Evidence: validation/ storage JSONs.
+- CPU brush gate: approximately 772,018 dabs/s for the documented 4 px technical
+  pen workload; this is not a claim for every brush diameter. All twelve brushes
+  have reference parity and deterministic replay tests. Evidence:
+  `validation/brush-macos-arm64.json`.
+- Latest full 500-layer switch: 526.950 ms worst, above 150 ms; process peak
+  675.1 MiB. Full native processing timing reached 13.562 ms, above 8 ms.
+  End-to-end presentation is recorded separately and also remains open. Earlier
+  isolated measurements in `validation/native-presentation-macos-arm64.json` do
+  not establish a passing full-corpus gate.
+- Document tests cover torn tails, exact replay, undo/redo and forced termination
+  at five commit boundaries. Tile compaction tests cover five publication failure
+  boundaries and abrupt child exits. The required 500-kill soak remains pending.
+- The document-backed native editor smoke test passed with saved painted content.
+  Computer Use permission was unavailable, so visual desktop inspection and real
+  Sidecar behavior remain unverified.
 
-The corpus is 8192×8192, 500 layers, 256×256 RGBA8 tiles. Exactly 204,800 of 512,000
-slots are occupied: 50 GiB of logical pixel data. Every occupied tile is generated
-independently with seeded colored marks on transparent pixels and an identity
-stamp. This is highly compressible painting-like content, not worst-case random
-noise. The generator streams through a 64 MiB decoded tile cache. The fixture is
-reused under `target/storage-gate`; generated files are ignored by git.
-
-The gate asserts index-only open under 2 seconds in a **fresh process**, peak
-process residency under 4 GiB, and decoded cache residency within its independent
-budget. It samples current RSS and checks the kernel's peak RSS, so transient
-process memory is covered. OS disk cache is uncontrolled and usually warm;
-these results are not cold-disk latency. The process memory gate includes index,
-scratch, mmap pages and allocator overhead, not just decoded tile accounting.
-
-Random access alternates layers and viewport regions, verifies pixels, edits
-known tiles, forces eviction, commits, reopens and verifies edits. Any failed
-assertion exits nonzero. `--cache-mib`, `--ceiling-mib`, `--seed`, `--root` and
-`--results` are supported; use `--help`. Concurrent runs require separate `--root`
-directories because each run modifies the same bounded set of probe tiles.
-
-Measured results are recorded below after validation. JSON artifacts include seed,
-architecture, corpus size, cache budget, actual RSS, open time and access counts.
-The short gate writes `target/gate-results.json`; the long gate writes
-`target/soak-results.json`.
-
-This is the **tile-store gate only**. Full-canvas composite memory, layer-cache
-rebuild latency, viewport presentation, zoom pyramid, 10,000 dabs/s, compaction,
-500 forced kills and M3 operation-log recovery are pending. The short gate is not
-a replacement for the ten-minute run.
-
-## Persistence contract and limits
-
-See `crates/sideduck-tile/README.md` for the API. Dirty tile data is appended before
-eviction. Explicit `commit()` synchronizes data, atomically publishes a
-checksummed index, and synchronizes its directory. Reopening sees the last
-published index; uncommitted blobs are ignored. Store files are exclusively
-locked. CRC failures and malformed indices return errors. Tests cover interrupted
-publication/tail data, but do not constitute the future process-kill soak.
-
-Prefetch is synchronous for this first increment. Compaction and asynchronous
-prefetch are pending. `.pond` documents and `.quill` brushes are specified formats,
-not implemented save formats in this prototype. Tile stores are internal test
-directories, not complete document packages.
-
-## Measurements
-
-Validated on macOS 15.3.1, arm64, Apple M4 Pro (Metal), 2026-10-14.
-
-- `make check GATE_ROOT=target/storage-gate-check`: passed, including 48 tests,
-  Clippy with denied warnings, formatting, a release build and the short gate.
-- Freshly generated 50 GiB logical corpus: 354.81 MiB initial disk size,
-  generation 14.82 s; fresh-process index open 0.0129 s; process peak 88.7 MiB,
-  below 4 GiB, with a 64 MiB decoded tile cache.
-- Native `--smoke-test`: successful startup and clean automatic exit;
-  headless adapter reported `Apple M4 Pro (Metal)`.
-- Automated desktop clicking/visual inspection was unavailable because Computer
-  Use permissions were not granted. Physical Sidecar/Pencil acceptance is pending.
-- A clean local clone of implementation commit `716fa57` passed `make check`
-  with a fresh target directory, cached dependencies, and native Metal access.
-  Its regenerated corpus opened in 0.0130 s; process peak was 89.0 MiB.
-- Final native smoke test after layout/input fixes also exited successfully.
-- Production-source line coverage, excluding test bodies: tile store **94.67%**
-  (515/544), prototype brush **80.21%** (77/96), input mapping **100%** (37/37).
-  `make check` now independently enforces an 80% floor for each of these crates;
-  native bridge/UI code and unimplemented milestone crates are not included.
-  Reports: `target/coverage/summary.json` and per-crate LCOV files.
-- The final check pipeline, including all coverage floors, also passed from the
-  clean clone at commit `d3c0d12` (source code unchanged from `716fa57`).
-- **Ten-minute M1 gate passed:** 600.000398 s, 5,379,191 reads, 188,490 dirty edits,
-  1,319,424 viewport jumps, 5,226,692 evictions, and 271,872 full-pixel comparisons.
-  All 64 edited probe tiles were verified after commit and reopen.
-- Final gate index-open time **0.018309459 s** (<2 s); peak process residency
-  **90,013,696 bytes / 85.84 MiB** (<4 GiB); decoded cache budget **64 MiB**.
-  This run reused the fixture and has a warm/uncontrolled filesystem cache. Its
-  parent-process peak is preparation-only; the fresh-generation peak is captured
-  by the short gate above. Append-only orphan blobs grew the reused fixture to
-  818,484,480 bytes by the end; compaction remains pending.
-- Full long-run machine-readable evidence is in `target/soak-results.json`;
-  committed measurement copies are in `validation/`. These measurements apply
-  only to this hardware and this compressible corpus.
+Final stabilization checks: all 204 workspace tests passed with native Metal
+access; workspace formatting and all-target Clippy with warnings denied passed.
+The full coverage/performance/fresh-clone suite was not repeated for this early
+push; the failed performance gates and incomplete release checklist remain open.

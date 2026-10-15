@@ -1,5 +1,6 @@
 [package]
 name = "sideduck-bench"
+default-run = "sideduck-bench"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,4 +8,9 @@ rust-version.workspace = true
 [dependencies]
 sideduck-tile = { path = "../sideduck-tile" }
 sideduck-platform = { path = "../sideduck-platform" }
+sideduck-composite = { path = "../sideduck-composite" }
+serde.workspace = true
+serde_json.workspace = true
+half.workspace = true
+wgpu.workspace = true
 

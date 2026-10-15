@@ -3,3 +3,15 @@ name = "sideduck-doc"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+sideduck-tile = { path = "../sideduck-tile" }
+sideduck-composite = { path = "../sideduck-composite" }
+serde.workspace = true
+serde_json = { workspace = true, features = ["float_roundtrip"] }
+png.workspace = true
+sha2 = "=0.10.9"
+lz4_flex = "=0.11.6"
+
+[dev-dependencies]
+tempfile = "=3.23.0"

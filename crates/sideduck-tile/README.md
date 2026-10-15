@@ -18,6 +18,30 @@ pins. Budgets below one tile, or attempts to evict an entirely pinned set, retur
 errors before exceeding the payload budget. Prefetch is synchronous and accepts
 an explicitly bounded list of viewport/neighbourhood addresses.
 
+`put_raw` explicitly keeps a frequently read tile uncompressed when it is flushed.
+The raw hint survives loading and editing that tile; replacing it with `put`
+restores compression. Both encodings use the same raw-pixel CRC, sparse removal,
+admission checks, and commit boundary. Raw storage trades disk space for decode
+latency and does not enlarge the decoded cache budget.
+
+Encoding uses pinned `lz4_flex`. The safe decoder follows the official
+[LZ4 block format](https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md),
+validates every length and offset against the input and output bounds, and copies
+overlapping matches by repeatedly doubling an initialized prefix. This avoids
+byte-at-a-time expansion of repeated RGBA pixels. Tests compare decoded bytes
+with `lz4_flex` for seeded random blocks, long repeated patterns, and mutated
+streams; invalid offsets, truncated input, and output overruns return errors.
+The independent tile checksum is still checked after every decode.
+
+`read_batch_owned` reads at most 32 addresses with one through eight scoped
+workers. It checks the worst-case decoded output size against the caller's
+explicit byte allowance before allocating pixels. Returned tiles belong to the
+caller and do not enter the LRU; dirty cached pixels take precedence over disk.
+Every worker joins before success or failure returns. Additional working memory
+is bounded by one mapped blob and an explicit 2 MiB stack per worker, plus the
+32-entry task metadata. Callers must include the returned pixels and this scratch
+space in their total residency budget.
+
 `commit` is the durability boundary. It writes all dirty blobs, syncs the store,
 writes and syncs a checksummed replacement index, renames the index atomically,
 and syncs the directory. A process interrupted before publication reopens the

@@ -12,7 +12,7 @@ const INDEX_MAGIC: &[u8; 8] = b"TILEIDX1";
 const HEADER_BYTES: u64 = 32;
 const RECORD_BYTES: u64 = 40;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Record {
     pub generation: u64,
     pub offset: u64,
@@ -112,6 +112,22 @@ pub(crate) fn write_index(
     index: &BTreeMap<TileKey, Record>,
     generation: u64,
 ) -> Result<()> {
+    write_index_records(
+        directory,
+        options,
+        index.len() as u64,
+        index.iter().map(|(key, record)| (*key, *record)),
+        generation,
+    )
+}
+
+pub(crate) fn write_index_records(
+    directory: &Path,
+    options: StoreOptions,
+    record_count: u64,
+    records: impl IntoIterator<Item = (TileKey, Record)>,
+    generation: u64,
+) -> Result<()> {
     let temporary = directory.join("tiles.index.next");
     // The store lock serializes writers, including recovery from a prior .next file.
     let file = OpenOptions::new()
@@ -125,11 +141,13 @@ pub(crate) fn write_index(
     header[..8].copy_from_slice(INDEX_MAGIC);
     header[8..12].copy_from_slice(&options.tile_size.to_le_bytes());
     header[12..16].copy_from_slice(&(options.format as u32).to_le_bytes());
-    header[16..24].copy_from_slice(&(index.len() as u64).to_le_bytes());
+    header[16..24].copy_from_slice(&record_count.to_le_bytes());
     header[24..32].copy_from_slice(&generation.to_le_bytes());
     writer.write_all(&header)?;
     checksum.update(&header);
-    for (key, record) in index {
+    let mut written = 0_u64;
+    for (key, record) in records {
+        written += 1;
         let mut bytes = [0; RECORD_BYTES as usize];
         bytes[0..4].copy_from_slice(&key.layer.to_le_bytes());
         bytes[4..8].copy_from_slice(&key.x.to_le_bytes());
@@ -141,6 +159,9 @@ pub(crate) fn write_index(
         bytes[36] = record.codec;
         writer.write_all(&bytes)?;
         checksum.update(&bytes);
+    }
+    if written != record_count {
+        return Err(Error::InvalidOptions("index iterator count mismatch"));
     }
     writer.write_all(&checksum.finalize().to_le_bytes())?;
     writer.flush()?;

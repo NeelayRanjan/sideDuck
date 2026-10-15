@@ -1,0 +1,25 @@
+{
+  "stylus_only": true,
+  "global_pressure": {"points": [[0.0, 0.0], [1.0, 1.0]]},
+  "brush_pressure": {"points": [[0.0, 0.0], [1.0, 1.0]]},
+  "filters": [
+    {"kind": "calibration"},
+    {"kind": "global_pressure"},
+    {"kind": "brush_pressure"},
+    {"kind": "average", "window": 4},
+    {"kind": "prediction", "horizon_ms": 8.0, "max_distance": 24.0, "minimum_interval_ms": 0.25}
+  ],
+  "calibration": {
+    "sample_limit": 4096,
+    "minimum_samples": 64,
+    "low_quantile": 0.02,
+    "high_quantile": 0.98,
+    "curve_knots": 17,
+    "minimum_pressure_span": 0.1,
+    "histogram_bins": 32
+  },
+  "latency": {
+    "bucket_edges_ms": [1.0, 2.0, 4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0, 64.0, 100.0, 200.0],
+    "maximum_pending_samples": 4096
+  }
+}

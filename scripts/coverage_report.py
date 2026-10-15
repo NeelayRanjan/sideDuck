@@ -8,10 +8,11 @@ code. No coverage claim is made for native glue, UI, or milestone placeholders.
 """
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CRATES = ("sideduck-tile", "sideduck-brush", "sideduck-input")
+CRATES = ("sideduck-tile", "sideduck-composite", "sideduck-brush", "sideduck-input", "sideduck-doc")
 FLOOR = 80
 
 
@@ -24,9 +25,12 @@ def production_end(path):
     if len(markers) != 1:
         raise ValueError(f"Review coverage exclusion for multiple test sections: {path}")
     start = markers[0]
-    declaration = source[start + 1]
+    declaration_index = start + 1
+    if re.fullmatch(r'#\[path = "[^"]+"\]', source[declaration_index]):
+        declaration_index += 1
+    declaration = source[declaration_index]
     if declaration == "mod tests;":
-        end = start + 1
+        end = declaration_index
     elif declaration == "mod tests {":
         # rustfmt indents nested braces; only a column-zero brace ends this module.
         end = next(i for i in range(start + 2, len(source)) if source[i] == "}")
@@ -37,15 +41,37 @@ def production_end(path):
     return start + 1
 
 
+def external_test_sources(crate_dir):
+    """Exclude only modules explicitly declared under cfg(test), never a glob."""
+    result = set()
+    for path in crate_dir.rglob("*.rs"):
+        source = path.read_text().splitlines()
+        for index, line in enumerate(source[:-1]):
+            if line != "#[cfg(test)]":
+                continue
+            attribute = re.fullmatch(r'#\[path = "([^"]+)"\]', source[index + 1])
+            if attribute and source[index + 2] == "mod tests;":
+                target = (path.parent / attribute.group(1)).resolve()
+            elif source[index + 1] == "mod tests;":
+                target = (path.parent / "tests.rs").resolve()
+            else:
+                continue
+            if not target.is_relative_to(crate_dir) or not target.is_file():
+                raise ValueError(f"Invalid external test module: {target}")
+            result.add(target)
+    return result
+
+
 def read_crate(crate):
     crate_dir = ROOT / "crates" / crate / "src"
+    test_sources = external_test_sources(crate_dir)
     lines = {}
     current = None
     cutoff = 0
     for record in (ROOT / "target" / "coverage" / f"{crate}.lcov").read_text().splitlines():
         if record.startswith("SF:"):
             current = Path(record[3:]).resolve()
-            if not current.is_relative_to(crate_dir) or current.name == "tests.rs":
+            if not current.is_relative_to(crate_dir) or current in test_sources:
                 current = None
                 continue
             cutoff = production_end(current)

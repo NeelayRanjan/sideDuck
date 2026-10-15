@@ -3,6 +3,7 @@
 /dist/
 *.pond/
 *.quill/
+!crates/sideduck-brush/assets/presets/*.quill/
 .DS_Store
 /scratch/
 

@@ -13,8 +13,15 @@
 //! All cooperating writers must use the store lock; external file modification
 //! while open is unsupported because memory mapping requires immutable blobs.
 
+mod batch;
+mod codec;
+mod compact;
 mod persistence;
+mod prefetch;
 mod types;
+
+pub use compact::{CompactionPhase, CompactionReport};
+pub use prefetch::{PrefetchOptions, PrefetchReport};
 
 pub use types::{Error, PixelFormat, Result, StoreOptions, StoreStats, TileKey};
 
@@ -33,6 +40,7 @@ struct CachedTile {
     generation: u64,
     last_used: u64,
     pins: usize,
+    compress: bool,
 }
 
 /// An append-only local tile store. The file lock lasts for this object's lifetime.
@@ -52,6 +60,9 @@ pub struct TileStore {
     clock: u64,
     stats: StoreStats,
     uncommitted: bool,
+    prefetch_job: Option<prefetch::PendingPrefetch>,
+    prefetch_sequence: u64,
+    prefetch_report: PrefetchReport,
 }
 
 impl TileStore {
@@ -121,6 +132,9 @@ impl TileStore {
             clock: 0,
             stats: StoreStats::default(),
             uncommitted: false,
+            prefetch_job: None,
+            prefetch_sequence: 0,
+            prefetch_report: PrefetchReport::default(),
         }
     }
 
@@ -195,6 +209,18 @@ impl TileStore {
     /// -0 both count as transparent; tiny nonzero alpha values are preserved.
     /// Explicit replacement or removal is allowed for pinned tiles.
     pub fn put(&mut self, key: TileKey, bytes: &[u8]) -> Result<()> {
+        self.put_encoded(key, bytes, true)
+    }
+
+    /// Store a frequently-read tile without compression on its next flush.
+    /// This trades disk space for predictable decode cost; checksum validation,
+    /// sparse removal, residency admission, and durable commit are unchanged.
+    /// Use `put` again to restore compression for a cold tile.
+    pub fn put_raw(&mut self, key: TileKey, bytes: &[u8]) -> Result<()> {
+        self.put_encoded(key, bytes, false)
+    }
+
+    fn put_encoded(&mut self, key: TileKey, bytes: &[u8], compress: bool) -> Result<()> {
         if bytes.len() != self.tile_bytes {
             return Err(Error::TileLength {
                 expected: self.tile_bytes,
@@ -210,10 +236,11 @@ impl TileStore {
             tile.bytes.copy_from_slice(bytes);
             tile.dirty = true;
             tile.generation = generation;
+            tile.compress = compress;
             self.touch(key);
         } else {
             self.make_room(self.tile_bytes)?;
-            self.insert_cache(key, bytes.to_vec(), generation, true);
+            self.insert_cache(key, bytes.to_vec(), generation, true, compress);
         }
         self.mark_changed(key);
         Ok(())
@@ -233,7 +260,7 @@ impl TileStore {
         self.stats.cache_misses += 1;
         self.make_room(self.tile_bytes)?;
         let bytes = self.read_blob(record)?;
-        self.insert_cache(key, bytes, record.generation, false);
+        self.insert_cache(key, bytes, record.generation, false, record.codec != 0);
         Ok(self.cache.get(&key).map(|tile| tile.bytes.as_slice()))
     }
 
@@ -291,8 +318,8 @@ impl TileStore {
         false
     }
 
-    /// Bounded synchronous prefetch for this gate. Callers choose their viewport
-    /// and layer neighborhood; fetching never increases the configured ceiling.
+    /// Synchronous convenience prefetch. For a bounded background viewport/layer
+    /// request use `start_prefetch` and `poll_prefetch` instead.
     pub fn prefetch(&mut self, keys: impl IntoIterator<Item = TileKey>) -> Result<usize> {
         let mut loaded = 0;
         for key in keys {
@@ -315,6 +342,7 @@ impl TileStore {
     /// Change the payload ceiling. A pinned set larger than the requested budget
     /// rejects the change; the prior budget remains in force.
     pub fn set_cache_budget(&mut self, bytes: usize) -> Result<()> {
+        self.cancel_prefetch()?;
         let updated = StoreOptions {
             cache_budget_bytes: bytes,
             ..self.options
@@ -384,7 +412,14 @@ impl TileStore {
         self.lru.insert((self.clock, key));
     }
 
-    fn insert_cache(&mut self, key: TileKey, bytes: Vec<u8>, generation: u64, dirty: bool) {
+    fn insert_cache(
+        &mut self,
+        key: TileKey,
+        bytes: Vec<u8>,
+        generation: u64,
+        dirty: bool,
+        compress: bool,
+    ) {
         self.cache.insert(
             key,
             CachedTile {
@@ -393,6 +428,7 @@ impl TileStore {
                 generation,
                 last_used: 0,
                 pins: 0,
+                compress,
             },
         );
         self.stats.resident_bytes += self.tile_bytes;
@@ -401,7 +437,14 @@ impl TileStore {
             .peak_resident_bytes
             .max(self.stats.resident_bytes);
         self.touch(key);
-        debug_assert!(self.stats.resident_bytes <= self.options.cache_budget_bytes);
+        self.stats.peak_total_resident_bytes = self
+            .stats
+            .peak_total_resident_bytes
+            .max(self.stats.resident_bytes + self.stats.prefetch_reserved_bytes);
+        debug_assert!(
+            self.stats.resident_bytes + self.stats.prefetch_reserved_bytes
+                <= self.options.cache_budget_bytes
+        );
     }
 
     fn remove_cache(&mut self, key: TileKey) -> Option<CachedTile> {
@@ -412,7 +455,17 @@ impl TileStore {
     }
 
     fn make_room(&mut self, bytes: usize) -> Result<()> {
-        while self.stats.resident_bytes > self.options.cache_budget_bytes - bytes {
+        let available = self
+            .options
+            .cache_budget_bytes
+            .saturating_sub(self.stats.prefetch_reserved_bytes);
+        if bytes > available {
+            return Err(Error::BudgetTooSmall {
+                required: bytes + self.stats.prefetch_reserved_bytes,
+                budget: self.options.cache_budget_bytes,
+            });
+        }
+        while self.stats.resident_bytes > available - bytes {
             self.evict_one()?;
         }
         Ok(())
@@ -444,11 +497,12 @@ impl TileStore {
             self.remove_cache(key);
             return Ok(());
         }
-        let compressed = lz4_flex::block::compress(&tile.bytes);
-        let (codec, blob) = if compressed.len() < tile.bytes.len() {
-            (1, compressed.as_slice())
-        } else {
-            (0, tile.bytes.as_slice())
+        let compressed = tile
+            .compress
+            .then(|| lz4_flex::block::compress(&tile.bytes));
+        let (codec, blob) = match &compressed {
+            Some(compressed) if compressed.len() < tile.bytes.len() => (1, compressed.as_slice()),
+            _ => (0, tile.bytes.as_slice()),
         };
         let offset = self.file.seek(SeekFrom::End(0))?;
         self.file.write_all(blob)?;
@@ -466,34 +520,40 @@ impl TileStore {
     }
 
     fn read_blob(&mut self, record: Record) -> Result<Vec<u8>> {
-        // SAFETY: this object holds the store's exclusive advisory lock. Its only
-        // writes append beyond existing blobs, never mutate/truncate them. Maps
-        // are local to this function and are dropped before any later append.
-        // External modification ignoring the lock is explicitly unsupported.
-        let mapping = unsafe {
-            MmapOptions::new()
-                .offset(record.offset)
-                .len(record.length as usize)
-                .map(&self.file)?
-        };
-        let mut bytes = vec![0; self.tile_bytes];
-        match record.codec {
-            0 => bytes.copy_from_slice(&mapping),
-            1 => {
-                let decoded = lz4_flex::block::decompress_into(&mapping, &mut bytes)
-                    .map_err(|_| Error::Corrupt("compressed tile"))?;
-                if decoded != self.tile_bytes {
-                    return Err(Error::Corrupt("decoded tile length"));
-                }
-            }
-            _ => return Err(Error::Corrupt("tile codec")),
-        }
-        if crc32fast::hash(&bytes) != record.checksum {
-            return Err(Error::Corrupt("tile checksum"));
-        }
+        let bytes = read_record(&self.file, record, self.tile_bytes)?;
         self.stats.compressed_bytes_read += u64::from(record.length);
         Ok(bytes)
     }
+}
+
+fn read_record(file: &File, record: Record, tile_bytes: usize) -> Result<Vec<u8>> {
+    // SAFETY: the calling store holds the store's exclusive advisory lock. Its only
+    // writes append beyond existing blobs, never mutate/truncate them. Maps
+    // are local to this function and are dropped before any later append.
+    // External modification ignoring the lock is explicitly unsupported.
+    let mapping = unsafe {
+        MmapOptions::new()
+            .offset(record.offset)
+            .len(record.length as usize)
+            .map(file)?
+    };
+    let bytes = match record.codec {
+        0 => mapping.to_vec(),
+        1 => {
+            let mut bytes = vec![0; tile_bytes];
+            let decoded = codec::decompress_into(&mapping, &mut bytes)
+                .map_err(|_| Error::Corrupt("compressed tile"))?;
+            if decoded != tile_bytes {
+                return Err(Error::Corrupt("decoded tile length"));
+            }
+            bytes
+        }
+        _ => return Err(Error::Corrupt("tile codec")),
+    };
+    if crc32fast::hash(&bytes) != record.checksum {
+        return Err(Error::Corrupt("tile checksum"));
+    }
+    Ok(bytes)
 }
 
 #[cfg(test)]

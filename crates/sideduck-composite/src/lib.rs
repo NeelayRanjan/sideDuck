@@ -1,4 +1,15 @@
-//! GPU initialization boundary. Full compositing is planned for M2.
+//! Linear-premultiplied compositing, bounded derived caches, and viewport mips.
+
+pub mod blend;
+pub mod cache;
+pub mod color;
+pub mod gpu;
+pub mod mip_store;
+pub mod present;
+pub mod pyramid;
+pub mod raster;
+
+pub use blend::{blend, composite_stack, BlendMode, Pixel};
 
 /// Establishes a real headless device; failure is never replaced with a mock pass.
 pub fn gpu_probe() -> Result<String, String> {

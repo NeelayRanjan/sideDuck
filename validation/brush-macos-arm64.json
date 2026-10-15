@@ -1,0 +1,18 @@
+{
+  "platform": "macOS arm64, Apple M4 Pro",
+  "profile": "release",
+  "workload": "shipped 4px Technical pen, 10000 confirmed samples, 256x64 sparse target",
+  "dabs": 12499,
+  "elapsed_seconds": 0.016190042,
+  "dabs_per_second": 772017.7625234078,
+  "required_dabs_per_second": 10000,
+  "target_resident_bytes": 278528,
+  "stroke_peak_bytes": 622592,
+  "combined_budget_bytes": 83886080,
+  "cpu_reference_tolerance": 2e-05,
+  "presets_compared": 12,
+  "golden_tolerance_bytes": 1,
+  "determinism": "bit-identical repeated inputs on this platform",
+  "feel": "not assessed",
+  "memory_accounting": "Pixel arrays plus conservative per-tile allocation/metadata allowance; process RSS is measured independently by the application gate"
+}

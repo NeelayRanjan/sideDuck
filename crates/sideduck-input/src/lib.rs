@@ -1,5 +1,20 @@
-//! Portable coordinate mapping and contact routing for the prototype.
-#[derive(Clone, Copy, Debug, PartialEq)]
+//! Portable tablet samples, deterministic filters, calibration, and latency accounting.
+mod calibration;
+mod config;
+mod curve;
+mod filters;
+mod latency;
+mod sample;
+pub use calibration::{CalibrationResult, PressureCalibrator};
+pub use config::{CalibrationConfig, FilterSpec, InputConfig, LatencyConfig};
+pub use curve::ResponseCurve;
+pub use filters::{
+    FilterChain, FilterContext, InputFilter, InputRoute, Prediction, ProcessedSample,
+};
+pub use latency::{LatencyReport, LatencyTracker};
+pub use sample::{InputSample, Modifiers, SamplePhase, ToolKind};
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
@@ -67,68 +82,4 @@ impl ContactTracker {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn canvas_mapping_accounts_for_letterbox_and_scale() {
-        let map = CanvasMapping {
-            origin: [10.0, 20.0],
-            display_size: [512.0, 384.0],
-            pixel_size: [2048, 1536],
-        };
-        assert_eq!(
-            map.map([266.0, 212.0], 0.5),
-            Some(Point {
-                x: 1024.0,
-                y: 768.0,
-                pressure: 0.5
-            })
-        );
-        assert!(map.map([9.0, 20.0], 1.0).is_none());
-        assert!(map.map([f32::NAN, 20.0], 1.0).is_none());
-        assert!(map.map([522.0, 20.0], 1.0).is_none());
-    }
-    #[test]
-    fn lifting_or_leaving_canvas_does_not_join_strokes() {
-        let mut tracker = ContactTracker::default();
-        let a = Point {
-            x: 1.0,
-            y: 2.0,
-            pressure: 1.0,
-        };
-        let b = Point { x: 100.0, ..a };
-        assert_eq!(tracker.segment(Some(a), false), Some((a, a)));
-        tracker.segment(None, false);
-        assert_eq!(tracker.segment(Some(b), false), Some((b, b)));
-        tracker.segment(Some(Point { pressure: 0.0, ..b }), false);
-        assert_eq!(tracker.segment(Some(a), false), Some((a, a)));
-    }
-    #[test]
-    fn malformed_sample_ends_contact_before_next_valid_point() {
-        let mut tracker = ContactTracker::default();
-        let a = Point {
-            x: 1.0,
-            y: 2.0,
-            pressure: 1.0,
-        };
-        let b = Point { x: 100.0, ..a };
-        tracker.segment(Some(a), false);
-        assert!(tracker
-            .segment(Some(Point { x: f32::NAN, ..a }), false)
-            .is_none());
-        assert_eq!(tracker.segment(Some(b), false), Some((b, b)));
-    }
-
-    #[test]
-    fn eraser_switch_starts_new_segment() {
-        let mut tracker = ContactTracker::default();
-        let a = Point {
-            x: 1.0,
-            y: 2.0,
-            pressure: 1.0,
-        };
-        let b = Point { x: 100.0, ..a };
-        tracker.segment(Some(a), false);
-        assert_eq!(tracker.segment(Some(b), true), Some((b, b)));
-    }
-}
+mod tests;

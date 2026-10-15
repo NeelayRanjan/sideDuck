@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "name": "Technical pen",
+  "eraser": false,
+  "parameters": {
+    "size": {
+      "value": 4.0,
+      "response": null
+    },
+    "spacing": {
+      "value": 0.2,
+      "response": null
+    },
+    "scatter": {
+      "value": 0.0,
+      "response": null
+    },
+    "rotation": {
+      "value": 0.0,
+      "response": null
+    },
+    "rotation_follows_direction": {
+      "value": 0.0,
+      "response": null
+    },
+    "flow": {
+      "value": 1.0,
+      "response": null
+    },
+    "opacity": {
+      "value": 1.0,
+      "response": null
+    },
+    "hardness": {
+      "value": 1.0,
+      "response": null
+    },
+    "grain_scale": {
+      "value": 64.0,
+      "response": null
+    },
+    "grain_motion": {
+      "value": 0.0,
+      "response": null
+    },
+    "wet_mix": {
+      "value": 0.0,
+      "response": null
+    },
+    "pickup_length": {
+      "value": 4.0,
+      "response": null
+    },
+    "hue_jitter": {
+      "value": 0.0,
+      "response": null
+    },
+    "saturation_jitter": {
+      "value": 0.0,
+      "response": null
+    },
+    "value_jitter": {
+      "value": 0.0,
+      "response": null
+    },
+    "smoothing": {
+      "value": 0.0,
+      "response": null
+    }
+  }
+}

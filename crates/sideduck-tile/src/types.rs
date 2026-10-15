@@ -81,6 +81,9 @@ impl StoreOptions {
 pub struct StoreStats {
     pub resident_bytes: usize,
     pub peak_resident_bytes: usize,
+    /// Reserved asynchronous decoded payload; cache plus reservations never exceeds its ceiling.
+    pub prefetch_reserved_bytes: usize,
+    pub peak_total_resident_bytes: usize,
     pub cache_entries: usize,
     pub persisted_tiles: usize,
     pub cache_hits: u64,

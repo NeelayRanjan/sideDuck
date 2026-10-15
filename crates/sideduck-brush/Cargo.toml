@@ -6,4 +6,6 @@ rust-version.workspace = true
 
 [dependencies]
 serde.workspace = true
+serde_json.workspace = true
+png.workspace = true
 sideduck-input = { path = "../sideduck-input" }

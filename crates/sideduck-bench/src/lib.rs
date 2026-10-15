@@ -4,6 +4,8 @@
 
 use std::path::PathBuf;
 
+pub mod render_gate;
+
 pub const CANVAS_SIZE: u32 = 8192;
 pub const LAYERS: u32 = 500;
 pub const TILE_SIZE: u32 = 256;

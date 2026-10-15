@@ -8,3 +8,17 @@ rust-version.workspace = true
 eframe.workspace = true
 sideduck-ui = { path = "../sideduck-ui" }
 sideduck-composite = { path = "../sideduck-composite" }
+sideduck-doc = { path = "../sideduck-doc" }
+sideduck-brush = { path = "../sideduck-brush" }
+sideduck-input = { path = "../sideduck-input" }
+sideduck-platform = { path = "../sideduck-platform" }
+sideduck-tile = { path = "../sideduck-tile" }
+serde.workspace = true
+serde_json = { workspace = true, features = ["float_roundtrip"] }
+half.workspace = true
+image = { version = "=0.25.10", default-features = false, features = ["png", "jpeg", "tiff"] }
+lopdf = { version = "=0.38.0", default-features = false }
+
+[dev-dependencies]
+tempfile = "=3.23.0"
+resvg = { version = "=0.45.1", default-features = false }

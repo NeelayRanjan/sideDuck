@@ -12,7 +12,7 @@ fi
 command -v python3 >/dev/null 2>&1 || { echo 'Coverage reporting requires Python 3.' >&2; exit 1; }
 export CARGO_LLVM_COV_TARGET_DIR="$repo_dir/target/llvm-cov-target"
 mkdir -p target/coverage
-for crate in sideduck-tile sideduck-brush sideduck-input; do
+for crate in sideduck-tile sideduck-composite sideduck-brush sideduck-input sideduck-doc; do
     ./scripts/cargo.sh llvm-cov -p "$crate" --locked --lcov \
         --output-path "target/coverage/$crate.lcov"
 done

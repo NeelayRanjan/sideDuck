@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "name": "Soft airbrush",
+  "eraser": false,
+  "parameters": {
+    "size": {
+      "value": 56.0,
+      "response": null
+    },
+    "spacing": {
+      "value": 0.12,
+      "response": null
+    },
+    "scatter": {
+      "value": 0.0,
+      "response": null
+    },
+    "rotation": {
+      "value": 0.0,
+      "response": null
+    },
+    "rotation_follows_direction": {
+      "value": 0.0,
+      "response": null
+    },
+    "flow": {
+      "value": 0.18,
+      "response": {
+        "driver": "pressure",
+        "curve": {
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.35,
+              0.25
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ]
+        },
+        "minimum": 0.1,
+        "maximum": 1.0
+      }
+    },
+    "opacity": {
+      "value": 1.0,
+      "response": null
+    },
+    "hardness": {
+      "value": 0.0,
+      "response": null
+    },
+    "grain_scale": {
+      "value": 64.0,
+      "response": null
+    },
+    "grain_motion": {
+      "value": 0.0,
+      "response": null
+    },
+    "wet_mix": {
+      "value": 0.0,
+      "response": null
+    },
+    "pickup_length": {
+      "value": 4.0,
+      "response": null
+    },
+    "hue_jitter": {
+      "value": 0.0,
+      "response": null
+    },
+    "saturation_jitter": {
+      "value": 0.0,
+      "response": null
+    },
+    "value_jitter": {
+      "value": 0.0,
+      "response": null
+    },
+    "smoothing": {
+      "value": 0.0,
+      "response": null
+    }
+  }
+}

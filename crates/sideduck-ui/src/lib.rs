@@ -1,4 +1,6 @@
 //! Prototype controls and canvas presentation. Rasterization stays in sideduck-brush.
+pub mod editor;
+
 use eframe::egui::{self, Color32, RichText, Vec2};
 use serde::Deserialize;
 use sideduck_brush::{BrushSettings, Canvas};

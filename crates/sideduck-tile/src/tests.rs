@@ -535,3 +535,57 @@ fn property_tile_index_round_trips_generated_edits_removals_and_evictions() {
         }
     }
 }
+
+#[test]
+fn raw_hot_tiles_keep_eviction_round_trips_budget_and_sparse_removal() {
+    let (directory, mut store) = fixture(1);
+    store.put_raw(key(0), &pixels(7)).unwrap();
+    store.put(key(1), &pixels(9)).unwrap();
+    store.commit().unwrap();
+    assert_eq!(store.index[&key(0)].codec, 0);
+    assert_eq!(store.index[&key(0)].length as usize, store.tile_bytes());
+    assert_eq!(store.index[&key(1)].codec, 1);
+    drop(store);
+    let mut store = TileStore::open(directory.path(), options(1)).unwrap();
+    assert_eq!(store.get(key(0)).unwrap().unwrap(), pixels(7));
+    store.edit(key(0), |bytes| bytes[0] = 4).unwrap();
+    store.commit().unwrap();
+    assert_eq!(
+        store.index[&key(0)].codec,
+        0,
+        "edits retain the hot storage hint"
+    );
+    store.put(key(0), &pixels(8)).unwrap();
+    store.commit().unwrap();
+    assert_eq!(
+        store.index[&key(0)].codec,
+        1,
+        "cold replacement restores compression"
+    );
+    assert!(store.stats().peak_resident_bytes <= options(1).cache_budget_bytes);
+    store.put_raw(key(0), &vec![0; store.tile_bytes()]).unwrap();
+    store.commit().unwrap();
+    assert!(!store.contains(key(0)));
+    assert!(store.put_raw(key(2), &[1]).is_err());
+}
+
+#[test]
+fn raw_hot_tile_corruption_keeps_checksum_validation() {
+    let (directory, mut store) = fixture(1);
+    store.put_raw(key(0), &pixels(5)).unwrap();
+    store.commit().unwrap();
+    drop(store);
+    let mut file = OpenOptions::new()
+        .write(true)
+        .open(directory.path().join("tiles.store"))
+        .unwrap();
+    file.seek(SeekFrom::End(-1)).unwrap();
+    file.write_all(&[0]).unwrap();
+    drop(file);
+    let mut store = TileStore::open(directory.path(), options(1)).unwrap();
+    assert!(matches!(
+        store.get(key(0)),
+        Err(Error::Corrupt("tile checksum"))
+    ));
+    assert_eq!(store.stats().resident_bytes, 0);
+}

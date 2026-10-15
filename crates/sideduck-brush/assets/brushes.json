@@ -1,0 +1,1021 @@
+{
+  "engine": {
+    "tile_size": 32,
+    "minimum_spacing": 0.25,
+    "antialias_width": 0.5,
+    "velocity_normalizer": 1500,
+    "tilt_normalizer": 1,
+    "maximum_dabs_per_sample": 65536,
+    "maximum_stroke_bytes": 67108864,
+    "maximum_texture_side": 1024
+  },
+  "presets": [
+    {
+      "definition": {
+        "version": 1,
+        "name": "Pencil",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 7
+          },
+          "spacing": {
+            "value": 0.12
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 0.65,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.05,
+              "maximum": 1
+            }
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.4
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.75,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Ink pen",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 16,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.2,
+              "maximum": 1
+            }
+          },
+          "spacing": {
+            "value": 0.1
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 1
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.95
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.0,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Technical pen",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 4
+          },
+          "spacing": {
+            "value": 0.2
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 1
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 1
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.0,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Soft airbrush",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 56
+          },
+          "spacing": {
+            "value": 0.12
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 0.18,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.1,
+              "maximum": 1
+            }
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.0,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Hard round",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 28,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.2,
+              "maximum": 1
+            }
+          },
+          "spacing": {
+            "value": 0.18
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 1
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 1
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.0,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Flat bristle",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 40,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.2,
+              "maximum": 1
+            }
+          },
+          "spacing": {
+            "value": 0.12
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 1
+          },
+          "flow": {
+            "value": 0.7
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.7
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "bristle",
+        "aspect": 0.35,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.15,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Wet oil",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 32,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.2,
+              "maximum": 1
+            }
+          },
+          "spacing": {
+            "value": 0.12
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 0.8
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.7
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0.6
+          },
+          "pickup_length": {
+            "value": 6
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "bristle",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.1,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Watercolour",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 48,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.2,
+              "maximum": 1
+            }
+          },
+          "spacing": {
+            "value": 0.14
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 0.25
+          },
+          "opacity": {
+            "value": 0.5
+          },
+          "hardness": {
+            "value": 0.1
+          },
+          "grain_scale": {
+            "value": 110
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0.25
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.3,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Charcoal",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 24
+          },
+          "spacing": {
+            "value": 0.18
+          },
+          "scatter": {
+            "value": 0.12
+          },
+          "rotation": {
+            "value": 0.4
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 0.7,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.1,
+              "maximum": 1
+            }
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.35
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "square",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.9,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Marker",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 30
+          },
+          "spacing": {
+            "value": 0.1
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0.6
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 1
+          },
+          "opacity": {
+            "value": 0.45,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.5,
+              "maximum": 1
+            }
+          },
+          "hardness": {
+            "value": 0.95
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "square",
+        "aspect": 0.4,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.0,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Texture stamp",
+        "eraser": false,
+        "parameters": {
+          "size": {
+            "value": 38
+          },
+          "spacing": {
+            "value": 0.6
+          },
+          "scatter": {
+            "value": 0.4
+          },
+          "rotation": {
+            "value": 6.2831853,
+            "response": {
+              "driver": "random",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 1
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.5
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 1
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0.04
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0.15
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "bristle",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.65,
+        "grain_seed": 173
+      }
+    },
+    {
+      "definition": {
+        "version": 1,
+        "name": "Soft eraser",
+        "eraser": true,
+        "parameters": {
+          "size": {
+            "value": 40,
+            "response": {
+              "driver": "pressure",
+              "curve": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.35,
+                    0.25
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              "minimum": 0.2,
+              "maximum": 1
+            }
+          },
+          "spacing": {
+            "value": 0.15
+          },
+          "scatter": {
+            "value": 0
+          },
+          "rotation": {
+            "value": 0
+          },
+          "rotation_follows_direction": {
+            "value": 0
+          },
+          "flow": {
+            "value": 1
+          },
+          "opacity": {
+            "value": 1
+          },
+          "hardness": {
+            "value": 0.1
+          },
+          "grain_scale": {
+            "value": 64
+          },
+          "grain_motion": {
+            "value": 0
+          },
+          "wet_mix": {
+            "value": 0
+          },
+          "pickup_length": {
+            "value": 4
+          },
+          "hue_jitter": {
+            "value": 0
+          },
+          "saturation_jitter": {
+            "value": 0
+          },
+          "value_jitter": {
+            "value": 0
+          },
+          "smoothing": {
+            "value": 0
+          }
+        }
+      },
+      "texture": {
+        "side": 64,
+        "shape": "round",
+        "aspect": 1,
+        "bristle_frequency": 28,
+        "grain_contrast": 0.0,
+        "grain_seed": 173
+      }
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+[
+  {
+    "position": [
+      2,
+      2
+    ],
+    "pressure": 0.5,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.0,
+    "device_id": 7,
+    "phase": "begin",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  },
+  {
+    "position": [
+      5,
+      2
+    ],
+    "pressure": 0.5,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.01,
+    "device_id": 7,
+    "phase": "move",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  },
+  {
+    "position": [
+      8,
+      2
+    ],
+    "pressure": 0.5,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.02,
+    "device_id": 7,
+    "phase": "move",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  },
+  {
+    "position": [
+      8,
+      5
+    ],
+    "pressure": 0.5,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.03,
+    "device_id": 7,
+    "phase": "move",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  },
+  {
+    "position": [
+      5,
+      5
+    ],
+    "pressure": 0.5,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.04,
+    "device_id": 7,
+    "phase": "move",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  },
+  {
+    "position": [
+      2,
+      5
+    ],
+    "pressure": 0.5,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.05,
+    "device_id": 7,
+    "phase": "move",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  },
+  {
+    "position": [
+      2,
+      5
+    ],
+    "pressure": 0,
+    "tilt": [
+      0.1,
+      -0.2
+    ],
+    "azimuth": 0.4,
+    "timestamp_seconds": 0.06,
+    "device_id": 7,
+    "phase": "end",
+    "tool": "stylus",
+    "buttons": 0,
+    "modifiers": {
+      "suspend_stabilization": false,
+      "suspend_snapping": false
+    }
+  }
+]

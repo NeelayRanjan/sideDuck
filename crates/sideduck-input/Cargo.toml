@@ -3,3 +3,7 @@ name = "sideduck-input"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json = { workspace = true, features = ["float_roundtrip"] }

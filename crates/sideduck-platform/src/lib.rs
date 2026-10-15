@@ -3,11 +3,21 @@
 //! The mock and native sources use the same bounded, deterministic event router.
 //! Native tablet events are never consumed: AppKit receives the original event.
 
+mod desktop;
 mod memory;
+mod mock;
 mod routing;
+pub use desktop::*;
+pub use mock::*;
+#[cfg(test)]
+mod desktop_tests;
 
 #[cfg(target_os = "macos")]
 mod macos;
+#[cfg(target_os = "macos")]
+mod macos_desktop;
+#[cfg(target_os = "macos")]
+mod macos_graphics;
 
 pub use memory::{process_memory, ProcessMemory};
 pub use routing::{EventKind, RawTabletEvent, TabletRouter};
@@ -61,7 +71,7 @@ pub trait TabletSource {
     fn description(&self) -> &'static str;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PlatformError(pub &'static str);
 
 impl fmt::Display for PlatformError {
@@ -71,6 +81,87 @@ impl fmt::Display for PlatformError {
 }
 
 impl std::error::Error for PlatformError {}
+
+/// Persistent user data root. This only resolves the path; callers create it
+/// when saving local preferences or scratch documents.
+pub fn app_data_directory() -> PlatformResult<std::path::PathBuf> {
+    let home = std::env::var_os("HOME")
+        .map(std::path::PathBuf::from)
+        .filter(|path| path.is_absolute());
+    #[cfg(target_os = "macos")]
+    {
+        home.map(|path| path.join("Library/Application Support/sideDuck"))
+            .ok_or(PlatformError("User home directory is unavailable"))
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        std::env::var_os("XDG_DATA_HOME")
+            .map(std::path::PathBuf::from)
+            .filter(|path| path.is_absolute())
+            .or_else(|| home.map(|path| path.join(".local/share")))
+            .map(|path| path.join("sideDuck"))
+            .ok_or(PlatformError("User data directory is unavailable"))
+    }
+}
+
+pub fn create_display_info() -> Box<dyn DisplayInfo> {
+    #[cfg(target_os = "macos")]
+    {
+        Box::new(macos_desktop::NativeDesktop)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Box::new(MockDesktop::default())
+    }
+}
+pub fn create_window_info() -> Box<dyn WindowInfo> {
+    #[cfg(target_os = "macos")]
+    {
+        Box::new(macos_desktop::NativeDesktop)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Box::new(MockDesktop::default())
+    }
+}
+pub fn create_screen_capture() -> Box<dyn ScreenCapture> {
+    #[cfg(target_os = "macos")]
+    {
+        Box::new(macos_graphics::NativeScreenCapture::default())
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Box::new(MockScreenCapture::default())
+    }
+}
+pub fn create_pdf_rasterizer() -> Box<dyn PdfRasterizer> {
+    #[cfg(target_os = "macos")]
+    {
+        Box::new(macos_graphics::NativePdfRasterizer)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Box::new(MockPdfRasterizer::default())
+    }
+}
+pub fn attach_overlay(
+    window_id: u32,
+    target: OverlayTarget,
+) -> PlatformResult<Box<dyn OverlayWindow>> {
+    #[cfg(target_os = "macos")]
+    {
+        Ok(Box::new(macos_desktop::NativeOverlayWindow::attach(
+            window_id, target,
+        )?))
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (window_id, target);
+        Err(PlatformError(
+            "Use MockOverlayWindow with the Linux desktop fixture",
+        ))
+    }
+}
 
 /// Attach a local AppKit monitor on macOS; provide an empty mock elsewhere.
 /// Call on the UI thread after initializing the native event loop.
