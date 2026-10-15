@@ -41,8 +41,9 @@ the operating system and checks both cache counters on every access. A ceiling
 breach is an error. Generation also enforces these ceilings; its parent process
 peak is recorded separately. When a fixture is reused, that field covers only
 fixture preparation in this run, not its original generation. `--cache-mib` and
-`--ceiling-mib` override the limits, and
-`--seed` accepts an unsigned decimal integer for reproducible data and access.
+`--ceiling-mib` override the limits. The gate requires a process ceiling of at
+least 128 MiB and a decoded cache strictly smaller than that ceiling. `--seed`
+accepts an unsigned decimal integer for reproducible data and access.
 
 `--seconds 600` runs the adversarial loop for at least ten minutes. Short runs are
 useful checks but never claim that the ten-minute criterion was exercised.

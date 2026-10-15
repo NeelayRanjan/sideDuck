@@ -155,4 +155,17 @@ Validated on macOS 15.3.1, arm64, Apple M4 Pro (Metal), 2026-10-14.
   `make check` now independently enforces an 80% floor for each of these crates;
   native bridge/UI code and unimplemented milestone crates are not included.
   Reports: `target/coverage/summary.json` and per-crate LCOV files.
-- Final ten-minute gate results will be recorded here after completion.
+- The final check pipeline, including all coverage floors, also passed from the
+  clean clone at commit `d3c0d12` (source code unchanged from `716fa57`).
+- **Ten-minute M1 gate passed:** 600.000398 s, 5,379,191 reads, 188,490 dirty edits,
+  1,319,424 viewport jumps, 5,226,692 evictions, and 271,872 full-pixel comparisons.
+  All 64 edited probe tiles were verified after commit and reopen.
+- Final gate index-open time **0.018309459 s** (<2 s); peak process residency
+  **90,013,696 bytes / 85.84 MiB** (<4 GiB); decoded cache budget **64 MiB**.
+  This run reused the fixture and has a warm/uncontrolled filesystem cache. Its
+  parent-process peak is preparation-only; the fresh-generation peak is captured
+  by the short gate above. Append-only orphan blobs grew the reused fixture to
+  818,484,480 bytes by the end; compaction remains pending.
+- Full long-run machine-readable evidence is in `target/soak-results.json`;
+  committed measurement copies are in `validation/`. These measurements apply
+  only to this hardware and this compressible corpus.

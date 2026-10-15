@@ -1,0 +1,90 @@
+{
+  "tool": "cargo-llvm-cov 0.6.21 / Rust 1.90.0 llvm-tools",
+  "metric": "LLVM instrumented production-source lines, per crate",
+  "excluded": [
+    "test modules",
+    "test source files",
+    "platform glue",
+    "UI",
+    "unimplemented milestone crates"
+  ],
+  "crates": [
+    {
+      "crate": "sideduck-tile",
+      "covered_lines": 515,
+      "instrumented_lines": 544,
+      "line_percent": 94.66911764705883,
+      "floor_percent": 80,
+      "passed": true,
+      "uncovered": [
+        "crates/sideduck-tile/src/lib.rs:93",
+        "crates/sideduck-tile/src/lib.rs:486",
+        "crates/sideduck-tile/src/lib.rs:489",
+        "crates/sideduck-tile/src/persistence.rs:28",
+        "crates/sideduck-tile/src/persistence.rs:43",
+        "crates/sideduck-tile/src/persistence.rs:156",
+        "crates/sideduck-tile/src/persistence.rs:157",
+        "crates/sideduck-tile/src/persistence.rs:159",
+        "crates/sideduck-tile/src/persistence.rs:161",
+        "crates/sideduck-tile/src/types.rs:106",
+        "crates/sideduck-tile/src/types.rs:107",
+        "crates/sideduck-tile/src/types.rs:108",
+        "crates/sideduck-tile/src/types.rs:109",
+        "crates/sideduck-tile/src/types.rs:110",
+        "crates/sideduck-tile/src/types.rs:111",
+        "crates/sideduck-tile/src/types.rs:112",
+        "crates/sideduck-tile/src/types.rs:113",
+        "crates/sideduck-tile/src/types.rs:115",
+        "crates/sideduck-tile/src/types.rs:116",
+        "crates/sideduck-tile/src/types.rs:117",
+        "crates/sideduck-tile/src/types.rs:118",
+        "crates/sideduck-tile/src/types.rs:121",
+        "crates/sideduck-tile/src/types.rs:122",
+        "crates/sideduck-tile/src/types.rs:124",
+        "crates/sideduck-tile/src/types.rs:128",
+        "crates/sideduck-tile/src/types.rs:129",
+        "crates/sideduck-tile/src/types.rs:130",
+        "crates/sideduck-tile/src/types.rs:131",
+        "crates/sideduck-tile/src/types.rs:133"
+      ]
+    },
+    {
+      "crate": "sideduck-brush",
+      "covered_lines": 77,
+      "instrumented_lines": 96,
+      "line_percent": 80.20833333333333,
+      "floor_percent": 80,
+      "passed": true,
+      "uncovered": [
+        "crates/sideduck-brush/src/lib.rs:19",
+        "crates/sideduck-brush/src/lib.rs:40",
+        "crates/sideduck-brush/src/lib.rs:49",
+        "crates/sideduck-brush/src/lib.rs:50",
+        "crates/sideduck-brush/src/lib.rs:51",
+        "crates/sideduck-brush/src/lib.rs:52",
+        "crates/sideduck-brush/src/lib.rs:53",
+        "crates/sideduck-brush/src/lib.rs:54",
+        "crates/sideduck-brush/src/lib.rs:55",
+        "crates/sideduck-brush/src/lib.rs:56",
+        "crates/sideduck-brush/src/lib.rs:57",
+        "crates/sideduck-brush/src/lib.rs:58",
+        "crates/sideduck-brush/src/lib.rs:59",
+        "crates/sideduck-brush/src/lib.rs:60",
+        "crates/sideduck-brush/src/lib.rs:61",
+        "crates/sideduck-brush/src/lib.rs:62",
+        "crates/sideduck-brush/src/lib.rs:63",
+        "crates/sideduck-brush/src/lib.rs:64",
+        "crates/sideduck-brush/src/lib.rs:85"
+      ]
+    },
+    {
+      "crate": "sideduck-input",
+      "covered_lines": 37,
+      "instrumented_lines": 37,
+      "line_percent": 100.0,
+      "floor_percent": 80,
+      "passed": true,
+      "uncovered": []
+    }
+  ]
+}

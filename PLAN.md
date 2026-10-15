@@ -1,6 +1,6 @@
 # Build plan
 
-Current task: final ten-minute M1 residency validation, coverage check; clean-checkout verification passed.
+Current task: requested initial increment complete. Next engineering milestone: M2 compositor; real-device Sidecar acceptance remains pending.
 
 ## M0 Scaffold
 - [x] Rust workspace and pinned dependencies; all specified crate boundaries.
@@ -11,8 +11,8 @@ Current task: final ten-minute M1 residency validation, coverage check; clean-ch
 - [x] Tile geometry, RGBA8/RGBA16F, sparse index, append-only mmap store, compression.
 - [x] Budgeted cache, eviction, pinning, prefetch, dirty tracking and persistence tests.
 - [x] Streaming 8K/500-layer synthetic document and fresh-process open-time check.
-- [ ] Assert process memory and cache budgets during ten-minute adversarial access.
-- [ ] Document measured results, limitations, and commit passing increment.
+- [x] Assert process memory and cache budgets during ten-minute adversarial access.
+- [x] Document measured results, limitations, and commit passing increment.
 
 ## Early macOS/Sidecar prototype (requested slice of M5/M6)
 - [x] Native tablet point/proximity input with pressure/tilt and portable replay mock.
