@@ -1,6 +1,6 @@
 # Build plan
 
-Current task: final ten-minute M1 residency validation, coverage check and clean-checkout verification.
+Current task: final ten-minute M1 residency validation, coverage check; clean-checkout verification passed.
 
 ## M0 Scaffold
 - [x] Rust workspace and pinned dependencies; all specified crate boundaries.

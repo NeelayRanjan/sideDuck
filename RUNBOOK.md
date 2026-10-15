@@ -8,7 +8,7 @@ without exporting and that drawing is discarded. There is no undo yet.
 
 ## Build and run
 
-Install Rust 1.90.0 (rust-toolchain.toml), Clippy, rustfmt, and the platform's native
+Install Rust 1.90.0 (rust-toolchain.toml), Clippy, rustfmt, LLVM tools, Python 3, and the platform's native
 compiler. On macOS install Apple's Command Line Tools with `xcode-select --install`
 if necessary. The `scripts/cargo.sh` wrapper uses a workspace-local toolchain in
 `.tools/` when available, otherwise the normal `cargo` on PATH. Build-time network
@@ -21,10 +21,12 @@ make run
 ```
 
 `make check` runs formatting, Clippy with denied warnings, tests, release builds,
-and the short storage gate. A real headless GPU is required by the GPU probe;
+the per-crate coverage floors, and the short storage gate. `make setup` installs
+the pinned cargo-llvm-cov 0.6.21 runner; `make coverage` runs its checks separately.
+A real headless GPU is required by the GPU probe;
 GPU-denying sandboxes will correctly fail it. The prototype uses wgpu/Metal on
 macOS. The Linux mock path is present but this increment is validated on macOS,
-not certified on Linux. Full v1 coverage and compositor/brush performance gates
+not certified on Linux. Coverage for the unimplemented document/compositor modules and full compositor/brush performance gates
 remain open in PLAN.md.
 
 `make dist` creates `dist/sideDuck.app`. Open it from Finder, or run
@@ -144,4 +146,13 @@ Validated on macOS 15.3.1, arm64, Apple M4 Pro (Metal), 2026-10-14.
   headless adapter reported `Apple M4 Pro (Metal)`.
 - Automated desktop clicking/visual inspection was unavailable because Computer
   Use permissions were not granted. Physical Sidecar/Pencil acceptance is pending.
-- Final ten-minute gate and clean-checkout results will be recorded here after completion.
+- A clean local clone of implementation commit `716fa57` passed `make check`
+  with a fresh target directory, cached dependencies, and native Metal access.
+  Its regenerated corpus opened in 0.0130 s; process peak was 89.0 MiB.
+- Final native smoke test after layout/input fixes also exited successfully.
+- Production-source line coverage, excluding test bodies: tile store **94.67%**
+  (515/544), prototype brush **80.21%** (77/96), input mapping **100%** (37/37).
+  `make check` now independently enforces an 80% floor for each of these crates;
+  native bridge/UI code and unimplemented milestone crates are not included.
+  Reports: `target/coverage/summary.json` and per-crate LCOV files.
+- Final ten-minute gate results will be recorded here after completion.
